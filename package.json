@@ -6,7 +6,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git@github.com:cuth/postcss-pxtorem.git"
+    "url": "git@github.com:weizs/postcss-pxtorem.git"
   },
   "bugs": "https://github.com/cuth/postcss-pxtorem/issues",
   "main": "index.js",
@@ -25,7 +25,7 @@
     "postcss-plugin"
   ],
   "dependencies": {
-    "object-assign": "^4.0.1",
-    "postcss": "^5.0.2"
+    "object-assign": "^4.1.0",
+    "postcss": "^5.1.2"
   }
 }
