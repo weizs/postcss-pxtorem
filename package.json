@@ -1,12 +1,12 @@
 {
   "name": "postcss-pxtorem-plus",
   "description": "A CSS post-processor that converts px to rem.",
-  "version": "1.0.0",
+  "version": "3.4.0",
   "author": "cuth",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git@github.com:weizs/postcss-pxtorem.git"
+    "url": "git@github.com:weizs/postcss-pxtorem-plus.git"
   },
   "bugs": "https://github.com/cuth/postcss-pxtorem/issues",
   "main": "index.js",
