@@ -33,7 +33,18 @@ module.exports = postcss.plugin('postcss-pxtorem', function (options) {
 
     var satisfyPropList = createPropListMatcher(opts.propList);
 
-    return function (css) {
+    return function (css, _options) {
+
+        if (options.exclude) {
+            var exclude = options.exclude;
+            var path = _options.opts.from;
+            exclude = Array.isArray(exclude) ? exclude : [exclude];
+            if (exclude && path) {
+                for (var i = 0; i < exclude.length; i++) {
+                    if (exclude[i] && exclude[i].test && exclude[i].test(path)) return;
+                }
+            }
+        }
 
         css.walkDecls(function (decl, i) {
             // This should be the fastest test and will remove most declarations
@@ -68,12 +79,12 @@ module.exports = postcss.plugin('postcss-pxtorem', function (options) {
 function convertLegacyOptions(options) {
     if (typeof options !== 'object') return;
     if (
-            (
-                (typeof options['prop_white_list'] !== 'undefined' && options['prop_white_list'].length === 0) ||
-                (typeof options.propWhiteList !== 'undefined' && options.propWhiteList.length === 0)
-            ) &&
-            typeof options.propList === 'undefined'
-        ) {
+        (
+            (typeof options['prop_white_list'] !== 'undefined' && options['prop_white_list'].length === 0) ||
+            (typeof options.propWhiteList !== 'undefined' && options.propWhiteList.length === 0)
+        ) &&
+        typeof options.propList === 'undefined'
+    ) {
         options.propList = ['*'];
         delete options['prop_white_list'];
         delete options.propWhiteList;
@@ -86,18 +97,19 @@ function convertLegacyOptions(options) {
     });
 }
 
-function createPxReplace (rootValue, unitPrecision, minPixelValue) {
+function createPxReplace(rootValue, unitPrecision, minPixelValue) {
     return function (m, $1) {
         if (!$1) return m;
         var pixels = parseFloat($1);
         if (pixels < minPixelValue) return m;
-        return toFixed((pixels / rootValue), unitPrecision) + 'rem';
+        var fixedVal = toFixed((pixels / rootValue), unitPrecision);
+        return (fixedVal === 0) ? '0' : fixedVal + 'rem';
     };
 }
 
 function toFixed(number, precision) {
     var multiplier = Math.pow(10, precision + 1),
-    wholeNumber = Math.floor(number * multiplier);
+        wholeNumber = Math.floor(number * multiplier);
     return Math.round(wholeNumber / 10) * 10 / multiplier;
 }
 
@@ -121,12 +133,12 @@ function createPropListMatcher(propList) {
     var lists = {
         exact: filterPropList.exact(propList),
         contain: filterPropList.contain(propList),
-        start: filterPropList.start(propList),
-        end: filterPropList.end(propList),
-        not: filterPropList.not(propList),
+        startWith: filterPropList.startWith(propList),
+        endWith: filterPropList.endWith(propList),
+        notExact: filterPropList.notExact(propList),
         notContain: filterPropList.notContain(propList),
-        notStart: filterPropList.notStart(propList),
-        notEnd: filterPropList.notEnd(propList)
+        notStartWith: filterPropList.notStartWith(propList),
+        notEndWith: filterPropList.notEndWith(propList)
     };
     return function (prop) {
         if (matchAll) return true;
@@ -137,22 +149,22 @@ function createPropListMatcher(propList) {
                 lists.contain.some(function (m) {
                     return prop.indexOf(m) > -1;
                 }) ||
-                lists.start.some(function (m) {
+                lists.startWith.some(function (m) {
                     return prop.indexOf(m) === 0;
                 }) ||
-                lists.end.some(function (m) {
+                lists.endWith.some(function (m) {
                     return prop.indexOf(m) === prop.length - m.length;
                 })
             ) &&
             !(
-                lists.not.indexOf(prop) > -1 ||
+                lists.notExact.indexOf(prop) > -1 ||
                 lists.notContain.some(function (m) {
                     return prop.indexOf(m) > -1;
                 }) ||
-                lists.notStart.some(function (m) {
+                lists.notStartWith.some(function (m) {
                     return prop.indexOf(m) === 0;
                 }) ||
-                lists.notEnd.some(function (m) {
+                lists.notEndWith.some(function (m) {
                     return prop.indexOf(m) === prop.length - m.length;
                 })
             )
