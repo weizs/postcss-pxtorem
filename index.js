@@ -25,7 +25,17 @@ var legacyOptions = {
     'propWhiteList': 'propList'
 };
 
-var projectDir = path.join(__dirname, '../..');
+var projectDir = path.join(__dirname, '..', '..');
+
+var match = function (regex, filePath) {
+    try {
+        regex.lastIndex = 0;
+        if (regex.test(filePath)) {
+            return true
+        }
+    } catch (e) {
+    }
+};
 
 module.exports = postcss.plugin('postcss-pxtorem', function (options) {
 
@@ -36,15 +46,20 @@ module.exports = postcss.plugin('postcss-pxtorem', function (options) {
 
     var satisfyPropList = createPropListMatcher(opts.propList);
 
+    var exclude = [];
+
+    if (options.exclude) {
+        exclude = Array.isArray(options.exclude) ? options.exclude : [options.exclude];
+    }
+
     return function (css, _options) {
 
-        if (options.exclude) {
-            var exclude = options.exclude;
-            var path = _options.opts.from;
-            exclude = Array.isArray(exclude) ? exclude : [exclude];
-            if (exclude && path) {
+        if (exclude.length) {
+            var filePath = _options.opts.from;
+            if (filePath) {
+                filePath = filePath.replace(projectDir, '').replace(/\\/g, '/');
                 for (var i = 0; i < exclude.length; i++) {
-                    if (exclude[i] && exclude[i].test && exclude[i].test(path.replace(projectDir, '').replace(/\\/g, '/'))) return;
+                    if (match(exclude[i], filePath)) return;
                 }
             }
         }
