@@ -1,5 +1,6 @@
 'use strict';
 
+var path = require('path');
 var postcss = require('postcss');
 var objectAssign = require('object-assign');
 var pxRegex = require('./lib/pixel-unit-regex');
@@ -24,6 +25,8 @@ var legacyOptions = {
     'propWhiteList': 'propList'
 };
 
+var projectDir = path.join(__dirname, '../..');
+
 module.exports = postcss.plugin('postcss-pxtorem', function (options) {
 
     convertLegacyOptions(options);
@@ -41,7 +44,7 @@ module.exports = postcss.plugin('postcss-pxtorem', function (options) {
             exclude = Array.isArray(exclude) ? exclude : [exclude];
             if (exclude && path) {
                 for (var i = 0; i < exclude.length; i++) {
-                    if (exclude[i] && exclude[i].test && exclude[i].test(path)) return;
+                    if (exclude[i] && exclude[i].test && exclude[i].test(path.replace(projectDir, '').replace(/\\/g, '/'))) return;
                 }
             }
         }
