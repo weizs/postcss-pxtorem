@@ -25,7 +25,7 @@ var legacyOptions = {
     'propWhiteList': 'propList'
 };
 
-var projectDir = path.join(__dirname, '..', '..');
+var rootDir = path.join(__dirname, '..', '..');
 
 var match = function (regex, filePath) {
     try {
@@ -38,6 +38,7 @@ var match = function (regex, filePath) {
 };
 
 module.exports = postcss.plugin('postcss-pxtorem', function (options) {
+    rootDir = options.rootDir || rootDir;
 
     convertLegacyOptions(options);
 
@@ -57,7 +58,7 @@ module.exports = postcss.plugin('postcss-pxtorem', function (options) {
         if (exclude.length) {
             var filePath = _options.opts.from;
             if (filePath) {
-                filePath = filePath.replace(projectDir, '').replace(/\\/g, '/');
+                filePath = filePath.replace(rootDir, '').replace(/\\/g, '/');
                 for (var i = 0; i < exclude.length; i++) {
                     if (match(exclude[i], filePath)) return;
                 }
